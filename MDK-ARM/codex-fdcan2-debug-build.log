@@ -1,0 +1,27 @@
+*** Using Compiler 'V5.06 update 7 (build 960)', folder: 'E:\APP\Keil\Keil5 MDK5.42\ARM\ARMCC\Bin'
+Build target '2027RM_chassis'
+compiling chassis_task.c...
+..\Chassis\chassis_cal.h(25): warning:  #1-D: last line of file ends without a newline
+  #endif  
+..\Chassis\chassis_task.c(150): warning:  #177-D: variable "last_dL0"  was declared but never referenced
+          float last_dL0 = CHASSIS.fdb.leg[i].rod.dL0;
+..\Chassis\chassis_task.c(151): warning:  #177-D: variable "last_dPhi0"  was declared but never referenced
+          float last_dPhi0 = CHASSIS.fdb.leg[i].rod.dPhi0;
+..\Chassis\chassis_task.c(201): warning:  #177-D: variable "F0"  was declared but never referenced
+  				float F0 = F[0];
+..\Chassis\chassis_task.c(202): warning:  #177-D: variable "Tp"  was declared but never referenced
+          float Tp = F[1];
+..\Chassis\chassis_task.c: 5 warnings, 0 errors
+compiling bsp_can.c...
+..\BSP\bsp_can.c(339): warning:  #177-D: variable "len"  was declared but never referenced
+  	uint8_t len;
+..\BSP\bsp_can.c(388): warning:  #177-D: variable "len"  was declared but never referenced
+  	uint8_t len;
+..\BSP\bsp_can.c: 2 warnings, 0 errors
+compiling main.c...
+compiling CAN_cmd_damiao.c...
+linking...
+Program Size: Code=64932 RO-data=4032 RW-data=1456 ZI-data=24704  
+FromELF: creating hex file...
+"2027RM_chassis\2027RM_chassis.axf" - 0 Error(s), 7 Warning(s).
+Build Time Elapsed:  00:00:06

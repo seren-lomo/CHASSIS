@@ -1,0 +1,21 @@
+2027rm_chassis\quaternionmathfunctions.o: E:/APP/Keil/Keil5 MDK5.42/Packs/ARM/CMSIS-DSP/1.16.2/Source/QuaternionMathFunctions/QuaternionMathFunctions.c
+2027rm_chassis\quaternionmathfunctions.o: E:/APP/Keil/Keil5 MDK5.42/Packs/ARM/CMSIS-DSP/1.16.2/Source/QuaternionMathFunctions/arm_quaternion_norm_f32.c
+2027rm_chassis\quaternionmathfunctions.o: E:\APP\Keil\Keil5 MDK5.42\Packs\ARM\CMSIS-DSP\1.16.2\Include\dsp/quaternion_math_functions.h
+2027rm_chassis\quaternionmathfunctions.o: E:\APP\Keil\Keil5 MDK5.42\Packs\ARM\CMSIS-DSP\1.16.2\Include\arm_math_types.h
+2027rm_chassis\quaternionmathfunctions.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
+2027rm_chassis\quaternionmathfunctions.o: E:\APP\Keil\Keil5 MDK5.42\ARM\ARMCC\Bin\..\include\stdint.h
+2027rm_chassis\quaternionmathfunctions.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
+2027rm_chassis\quaternionmathfunctions.o: E:\APP\Keil\Keil5 MDK5.42\ARM\ARMCC\Bin\..\include\string.h
+2027rm_chassis\quaternionmathfunctions.o: E:\APP\Keil\Keil5 MDK5.42\ARM\ARMCC\Bin\..\include\math.h
+2027rm_chassis\quaternionmathfunctions.o: E:\APP\Keil\Keil5 MDK5.42\ARM\ARMCC\Bin\..\include\float.h
+2027rm_chassis\quaternionmathfunctions.o: E:\APP\Keil\Keil5 MDK5.42\ARM\ARMCC\Bin\..\include\limits.h
+2027rm_chassis\quaternionmathfunctions.o: E:\APP\Keil\Keil5 MDK5.42\Packs\ARM\CMSIS-DSP\1.16.2\Include\arm_math_memory.h
+2027rm_chassis\quaternionmathfunctions.o: E:\APP\Keil\Keil5 MDK5.42\Packs\ARM\CMSIS-DSP\1.16.2\Include\dsp/none.h
+2027rm_chassis\quaternionmathfunctions.o: E:\APP\Keil\Keil5 MDK5.42\Packs\ARM\CMSIS-DSP\1.16.2\Include\dsp/utils.h
+2027rm_chassis\quaternionmathfunctions.o: E:/APP/Keil/Keil5 MDK5.42/Packs/ARM/CMSIS-DSP/1.16.2/Source/QuaternionMathFunctions/arm_quaternion_inverse_f32.c
+2027rm_chassis\quaternionmathfunctions.o: E:/APP/Keil/Keil5 MDK5.42/Packs/ARM/CMSIS-DSP/1.16.2/Source/QuaternionMathFunctions/arm_quaternion_conjugate_f32.c
+2027rm_chassis\quaternionmathfunctions.o: E:/APP/Keil/Keil5 MDK5.42/Packs/ARM/CMSIS-DSP/1.16.2/Source/QuaternionMathFunctions/arm_quaternion_normalize_f32.c
+2027rm_chassis\quaternionmathfunctions.o: E:/APP/Keil/Keil5 MDK5.42/Packs/ARM/CMSIS-DSP/1.16.2/Source/QuaternionMathFunctions/arm_quaternion_product_single_f32.c
+2027rm_chassis\quaternionmathfunctions.o: E:/APP/Keil/Keil5 MDK5.42/Packs/ARM/CMSIS-DSP/1.16.2/Source/QuaternionMathFunctions/arm_quaternion_product_f32.c
+2027rm_chassis\quaternionmathfunctions.o: E:/APP/Keil/Keil5 MDK5.42/Packs/ARM/CMSIS-DSP/1.16.2/Source/QuaternionMathFunctions/arm_quaternion2rotation_f32.c
+2027rm_chassis\quaternionmathfunctions.o: E:/APP/Keil/Keil5 MDK5.42/Packs/ARM/CMSIS-DSP/1.16.2/Source/QuaternionMathFunctions/arm_rotation2quaternion_f32.c

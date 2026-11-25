@@ -1,0 +1,20 @@
+*** Using Compiler 'V5.06 update 7 (build 960)', folder: 'E:\APP\Keil\Keil5 MDK5.42\ARM\ARMCC\Bin'
+Build target '2027RM_chassis'
+compiling IMU_task.c...
+compiling chassis_task.c...
+..\Chassis\chassis_cal.h(25): warning:  #1-D: last line of file ends without a newline
+  #endif  
+..\Chassis\chassis_task.c(129): warning:  #177-D: variable "last_dL0"  was declared but never referenced
+          float last_dL0 = CHASSIS.fdb.leg[i].rod.dL0;
+..\Chassis\chassis_task.c(130): warning:  #177-D: variable "last_dPhi0"  was declared but never referenced
+          float last_dPhi0 = CHASSIS.fdb.leg[i].rod.dPhi0;
+..\Chassis\chassis_task.c(178): warning:  #177-D: variable "F0"  was declared but never referenced
+  				float F0 = F[0];
+..\Chassis\chassis_task.c(179): warning:  #177-D: variable "Tp"  was declared but never referenced
+          float Tp = F[1];
+..\Chassis\chassis_task.c: 5 warnings, 0 errors
+linking...
+Program Size: Code=63940 RO-data=4032 RW-data=1396 ZI-data=24524  
+FromELF: creating hex file...
+"2027RM_chassis\2027RM_chassis.axf" - 0 Error(s), 5 Warning(s).
+Build Time Elapsed:  00:00:06

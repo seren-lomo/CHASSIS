@@ -1,0 +1,59 @@
+*** Using Compiler 'V5.06 update 7 (build 960)', folder: 'E:\APP\Keil\Keil5 MDK5.42\ARM\ARMCC\Bin'
+Build target '2027RM_chassis'
+compiling bsp_rc.c...
+../Chassis/chassis_task.h(172): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\BSP\bsp_rc.c: 1 warning, 0 errors
+compiling chassis_task.c...
+..\Chassis\chassis_task.h(172): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Chassis\chassis_cal.h(25): warning:  #1-D: last line of file ends without a newline
+  #endif  
+..\Chassis\chassis_task.c(35): warning:  #223-D: function "DmEnable" declared implicitly
+      DmEnable(&CHASSIS.joint_motor[0]);
+..\Chassis\chassis_task.c(80): warning:  #177-D: variable "last_dL0"  was declared but never referenced
+          float last_dL0 = CHASSIS.fdb.leg[i].rod.dL0;
+..\Chassis\chassis_task.c(81): warning:  #177-D: variable "last_dPhi0"  was declared but never referenced
+          float last_dPhi0 = CHASSIS.fdb.leg[i].rod.dPhi0;
+..\Chassis\chassis_task.c(127): warning:  #177-D: variable "F0"  was declared but never referenced
+  				float F0 = F[0];
+..\Chassis\chassis_task.c(128): warning:  #177-D: variable "Tp"  was declared but never referenced
+          float Tp = F[1];
+..\Chassis\chassis_task.c(144): warning:  #1-D: last line of file ends without a newline
+  }
+..\Chassis\chassis_task.c: 8 warnings, 0 errors
+compiling CAN_cmd_damiao.c...
+../Chassis/chassis_task.h(172): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Message\CAN_cmd_damiao.c: 1 warning, 0 errors
+compiling main.c...
+../Chassis/chassis_task.h(172): warning:  #1-D: last line of file ends without a newline
+  #endif
+../Core/Src/main.c: 1 warning, 0 errors
+compiling chassis_cal.c...
+..\Chassis\chassis_cal.h(25): warning:  #1-D: last line of file ends without a newline
+  #endif  
+..\Chassis\chassis_task.h(172): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Chassis\chassis_cal.c(174): warning:  #1-D: last line of file ends without a newline
+  }
+..\Chassis\chassis_cal.c: 3 warnings, 0 errors
+compiling bsp_can.c...
+../Chassis/chassis_task.h(172): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\BSP\bsp_can.c(280): warning:  #177-D: variable "len"  was declared but never referenced
+  	uint8_t len;
+..\BSP\bsp_can.c(313): warning:  #177-D: variable "len"  was declared but never referenced
+  	uint8_t len;
+..\BSP\bsp_can.c: 3 warnings, 0 errors
+compiling IMU_task.c...
+../Chassis/chassis_task.h(172): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\IMU\IMU_task.c(53): warning:  #177-D: variable "first_mahony"  was declared but never referenced
+  static uint8_t first_mahony=0; 
+..\IMU\IMU_task.c: 2 warnings, 0 errors
+linking...
+Program Size: Code=40424 RO-data=1352 RW-data=168 ZI-data=6896  
+FromELF: creating hex file...
+"2027RM_chassis\2027RM_chassis.axf" - 0 Error(s), 19 Warning(s).
+Build Time Elapsed:  00:00:12

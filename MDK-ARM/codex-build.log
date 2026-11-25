@@ -1,0 +1,17 @@
+*** Using Compiler 'V5.06 update 7 (build 960)', folder: 'E:\APP\Keil\Keil5 MDK5.42\ARM\ARMCC\Bin'
+Build target '2027RM_chassis'
+compiling bsp_can.c...
+../Chassis/chassis_task.h(53): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\BSP\bsp_can.c(159): warning:  #177-D: variable "len"  was declared but never referenced
+  	uint8_t len;
+..\BSP\bsp_can.c(219): warning:  #177-D: variable "len"  was declared but never referenced
+  	uint8_t len;
+..\BSP\bsp_can.c(259): warning:  #177-D: variable "len"  was declared but never referenced
+  	uint8_t len;
+..\BSP\bsp_can.c: 4 warnings, 0 errors
+linking...
+Program Size: Code=32128 RO-data=904 RW-data=172 ZI-data=6372  
+FromELF: creating hex file...
+"2027RM_chassis\2027RM_chassis.axf" - 0 Error(s), 4 Warning(s).
+Build Time Elapsed:  00:00:05
