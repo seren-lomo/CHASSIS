@@ -18,7 +18,7 @@
 #include <float.h>
 #include <math.h>
 
- int BODY_PITCH_DIRECTION =-1;
+ int BODY_PITCH_DIRECTION =1;
  float dt_s = 0.001f;
 static Imu_t chassis_imu;
 static LowPassFilter_t s_dot_filter;
@@ -94,12 +94,12 @@ static const StandPoseLimits_s stand_pose_limits[] = {
 /* Limit the effect of wheel slip on stationary balance position feedback. */
 static const float stand_position_error_limit_m = 0.35f;//0.05
 /* Keep position feedback active while reducing wheel-odometry influence in the fixed-height test. */
-static const float stand_fixed_translation_scale = 0.5f;
+static const float stand_fixed_translation_scale = 1.0f;
 /* Reduce fixed-height position return torque after a large displacement. */
-static const float stand_fixed_position_error_limit_m = 0.12f;
+static const float stand_fixed_position_error_limit_m = 0.35f;
 
 //¼Ó¼õ³õÊ¼ºóÇýµÄÏµÊý
-static const float stand_fixed_common_leg_wheel_scale = 0.65f;
+static const float stand_fixed_common_leg_wheel_scale = 1.0f;
 static const float stand_fixed_body_wheel_scale = 1.25f;
 static const float stand_fixed_leg_pitch_rate_damping = 1.0f; /* N m per rad/s, per leg. */
 
@@ -374,7 +374,7 @@ void UpdateLegStatus(void)
         CHASSIS.fdb.leg[i].rod.L0 = L0_Phi0[0]  ;
         CHASSIS.fdb.leg[i].rod.Phi0 = L0_Phi0[1];
 		
-		    CHASSIS.fdb.leg[i].rod.Theta = M_PI_2 - CHASSIS.fdb.leg[i].rod.Phi0 - CHASSIS.fdb.body.phi;//ÍÈÇãÐ±½Ç
+		    CHASSIS.fdb.leg[i].rod.Theta = M_PI_2 - CHASSIS.fdb.leg[i].rod.Phi0 + CHASSIS.fdb.body.phi;//ÍÈÇãÐ±½Ç
 		
 
 		
@@ -390,7 +390,7 @@ void UpdateLegStatus(void)
         CHASSIS.fdb.leg[i].rod.dL0 = dL0_dPhi0[0];
         CHASSIS.fdb.leg[i].rod.dPhi0 = dL0_dPhi0[1];
 				
-        CHASSIS.fdb.leg[i].rod.dTheta = -CHASSIS.fdb.leg[i].rod.dPhi0 - CHASSIS.fdb.body.phi_dot;
+        CHASSIS.fdb.leg[i].rod.dTheta = -CHASSIS.fdb.leg[i].rod.dPhi0 + CHASSIS.fdb.body.phi_dot;
 			//	CHASSIS.fdb.leg[i].rod.dTheta = LowPassFilterCalc(&CHASSIS.lpf.dtheta, CHASSIS.fdb.leg[i].rod.dTheta);
         
 
@@ -544,6 +544,11 @@ static void CalcLQR(bool fixed_balance)
     {
         x_error[i] = CHASSIS.lqr.wbr_x[i] - CHASSIS.lqr.wbr_xref[i];
     }
+		
+		//Æ«º½¹ýÁã»ØÈÆ
+		while (x_error[2] > (float)M_PI)  { x_error[2] -= 2.0f * (float)M_PI; }
+     while (x_error[2] < -(float)M_PI) { x_error[2] += 2.0f * (float)M_PI; }
+
     chassis_stand_position_error_m = x_error[0];
     if (isfinite(x_error[0]))
     {
