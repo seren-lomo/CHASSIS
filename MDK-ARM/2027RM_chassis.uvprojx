@@ -876,14 +876,14 @@
               <FilePath>..\Chassis\chassis_cal.h</FilePath>
             </File>
             <File>
-              <FileName>wbr_lqr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Chassis\wbr_lqr.c</FilePath>
-            </File>
-            <File>
               <FileName>wbr_lqr.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Chassis\wbr_lqr.h</FilePath>
+            </File>
+            <File>
+              <FileName>wbr_lqr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Chassis\wbr_lqr.c</FilePath>
             </File>
             <File>
               <FileName>wbr_lqr_table_1ms.h</FileName>

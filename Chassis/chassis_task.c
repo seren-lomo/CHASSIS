@@ -32,9 +32,9 @@ enum
 {
     STAND_OFF,
     STAND_SUPPORT,
-    STAND_BALANCE,
-    STAND_RISING,
-    STAND_FIXED_BALANCE,
+    STAND_BALANCE,//正常平衡
+    STAND_RISING,//受控起立
+    STAND_FIXED_BALANCE,//固定腿高平衡
     STAND_FIXED_SUPPORT_HOLD  /* Mode only; request stays STAND_FIXED_BALANCE. */
 };
 
@@ -48,7 +48,7 @@ enum
     STAND_INVALID_REQUEST,
     STAND_RISE_TIMEOUT,
     STAND_FIXED_NOT_READY
-};
+};//退出故障原因
 
 enum
 {
@@ -92,29 +92,29 @@ static const StandPoseLimits_s stand_pose_limits[] = {
 };
 
 /* Limit the effect of wheel slip on stationary balance position feedback. */
-static const float stand_position_error_limit_m = 0.35f;//0.05
+static const float stand_position_error_limit_m = 0.35f;//0.05LQR 位置反馈的最大位移误差值越小越柔和、越不易因打滑猛冲，值越大“钉在原地”的回位力越强
 /* Keep position feedback active while reducing wheel-odometry influence in the fixed-height test. */
-static const float stand_fixed_translation_scale = 1.0f;
+static const float stand_fixed_translation_scale = 1.0f;//固定腿高平衡测试里程计位置反馈的整体缩放系数
 /* Reduce fixed-height position return torque after a large displacement. */
-static const float stand_fixed_position_error_limit_m = 0.35f;
+static const float stand_fixed_position_error_limit_m = 0.35f;//位置误差限幅（单位：m）
 
 //加减初始后驱的系数
-static const float stand_fixed_common_leg_wheel_scale = 1.0f;
-static const float stand_fixed_body_wheel_scale = 1.25f;
-static const float stand_fixed_leg_pitch_rate_damping = 1.0f; /* N m per rad/s, per leg. */
+static const float stand_fixed_common_leg_wheel_scale = 1.0f;//对轮毂电机力矩的增益缩放系数,调大可增强车身前倾/后仰时轮子的纠偏力度
+static const float stand_fixed_body_wheel_scale = 1.0f;//1.25机体俯仰角对轮毂电机力矩的增益缩放系数
+static const float stand_fixed_leg_pitch_rate_damping = 0.0f; /* N m per rad/s, per leg. 俯仰角速度阻尼*/
 
 
-static const float stand_support_hold_body_rate_limit_rad_s = 0.5f;
+static const float stand_support_hold_body_rate_limit_rad_s = 0.5f;//支撑保持阶段允许的机体角速度上限
 
 /* Supported lift, measured as leg-pivot height relative to the wheel axle. */
-static const float stand_rise_height_target_m = 0.020f;
-static const float stand_rise_min_lift_m = 0.008f;
-static const float stand_rise_theta_limit_rad = 0.10472f; /* 6 degrees */
-static const float stand_rise_theta_rate_rad_s = 0.35f;
-static const float stand_rise_extend_rate_mps = 0.015f;
-static const float stand_rise_retract_rate_mps = 0.080f;
-static const float stand_rise_ready_time_s = 0.030f;
-static const uint32_t stand_rise_phase_timeout_ticks = 4000U;
+static const float stand_rise_height_target_m = 0.020f;//起立阶段的目标抬升高度
+static const float stand_rise_min_lift_m = 0.008f;//有效离底/抬起的最小高度门槛
+static const float stand_rise_theta_limit_rad = 0.10472f; /* 6 degrees起立过程允许的最大腿摆角偏差 */
+static const float stand_rise_theta_rate_rad_s = 0.35f;//起立过程允许的最大腿摆角速度
+static const float stand_rise_extend_rate_mps = 0.015f;//正常起立时的伸腿速度
+static const float stand_rise_retract_rate_mps = 0.080f;//姿态偏离或异常时的缩腿回退速度
+static const float stand_rise_ready_time_s = 0.030f;//高度和姿态都达标后需要连续保持的确认时间（30 ms），满足后才切入下一平衡状态
+static const uint32_t stand_rise_phase_timeout_ticks = 4000U;//起立阶段超时计数上限
 
 typedef struct
 {
@@ -133,7 +133,7 @@ typedef struct
     float leg_theta_limit_rad;
     float position_error_m;
     float position_error_used_m;
-} StandPoseSnapshot_s;
+} StandPoseSnapshot_s;//触发姿态保护或切入平衡被拒时拍下的一帧
 
 typedef struct
 {
@@ -148,7 +148,7 @@ typedef struct
     float spring_force_n;
     float swing_cmd_nm;
     float swing_feedback_nm;
-} StandRiseLegSnapshot_s;
+} StandRiseLegSnapshot_s;//起立超时现场快照
 
 typedef struct
 {
@@ -159,7 +159,7 @@ typedef struct
     StandRiseLegSnapshot_s leg[2]; /* Left, right. */
     float joint_torque_cmd_nm[4];  /* Motor index order. */
     float joint_torque_feedback_nm[4];
-} StandRiseTimeoutSnapshot_s;
+} StandRiseTimeoutSnapshot_s;//起立超时现场快照
 
 volatile StandPoseSnapshot_s chassis_stand_pose_snapshot;
 volatile StandRiseTimeoutSnapshot_s chassis_stand_rise_timeout_snapshot;
@@ -187,7 +187,7 @@ typedef struct
     float current_feedback[2]; /* Left, right, signed hardware counts. */
     float leg_swing_feedback_nm[2];
     uint8_t force_limited_mask;
-} StandBalanceSample_s;
+} StandBalanceSample_s;//平衡后
 
 typedef struct
 {
@@ -200,10 +200,10 @@ typedef struct
     StandBalanceSample_s first_backward;
     StandBalanceSample_s first_current_limit;
     StandBalanceSample_s recent;
-} StandBalanceTrace_s;
+} StandBalanceTrace_s;//平衡后
 
 volatile StandBalanceTrace_s chassis_stand_balance_trace;
-static const float stand_wheel_torque_per_count = 0.000480637608f;
+static const float stand_wheel_torque_per_count =0.00030064f;// 0.000480637608f;
 
 /* With the robot secured: 1 supports, 2 rises then balances, 4 balances at fixed length. */
 volatile uint8_t chassis_stand_request = STAND_OFF;
@@ -545,21 +545,22 @@ static void CalcLQR(bool fixed_balance)
         x_error[i] = CHASSIS.lqr.wbr_x[i] - CHASSIS.lqr.wbr_xref[i];
     }
 		
-		//偏航过零回绕
+		//yaw偏航过零回绕
 		while (x_error[2] > (float)M_PI)  { x_error[2] -= 2.0f * (float)M_PI; }
      while (x_error[2] < -(float)M_PI) { x_error[2] += 2.0f * (float)M_PI; }
-
+   //原始位移误差
     chassis_stand_position_error_m = x_error[0];
     if (isfinite(x_error[0]))
-    {
+    {  //是否为固定高度模式
         float position_limit = fixed_balance ? stand_fixed_position_error_limit_m
                                              : stand_position_error_limit_m;
+				//防止过大
         x_error[0] = fp32_constrain(x_error[0], -position_limit, position_limit);
     }
     if (fixed_balance)
     {
-        x_error[0] *= stand_fixed_translation_scale;
-        x_error[1] *= stand_fixed_translation_scale;
+        x_error[0] *= stand_fixed_translation_scale;//位移误差
+        x_error[1] *= stand_fixed_translation_scale;//速度误差
     }
     chassis_stand_position_error_used_m = x_error[0];
     stand_speed_error_used_mps = x_error[1];
@@ -584,7 +585,7 @@ static void CalcLQR(bool fixed_balance)
  */
 //注：后期加跳跃，离地
 float F_roll, l0_err, F_pd;
-//力矩优先级保护
+//力矩优先级保护，优先满足TP
 /* Find the axial-force interval that fits both joints with the chosen swing torque. */
 static float LimitStandLegForce(float force, float swing, float J[2][2], float joint_torque_limit)
 {
@@ -607,10 +608,9 @@ static float LimitStandLegForce(float force, float swing, float J[2][2], float j
 
 static void LegTorqueController(float support_force, float joint_torque_limit)
 {
-    bool rising = chassis_stand_mode == STAND_RISING;
+    bool rising = chassis_stand_mode == STAND_RISING;//support_force固定力BODY_MASS_FN 
 
-    F_roll = fp32_constrain(PID_calc(&CHASSIS.pid.roll_angle, CHASSIS.fdb.body.pitch, 0.0f),
-                           -80.0f, 80.0f);
+    F_roll = fp32_constrain(PID_calc(&CHASSIS.pid.roll_angle, CHASSIS.fdb.body.pitch, 0.0f),-80.0f, 80.0f);
     chassis_stand_force_limited_mask = 0U;
 
     for (uint8_t i = 0U; i < 2U; i++)
@@ -625,7 +625,7 @@ static void LegTorqueController(float support_force, float joint_torque_limit)
         CHASSIS.ref.rod_L0[i] = fp32_constrain(CHASSIS.ref.rod_L0[i], MIN_LEG_LENGTH, MAX_LEG_LENGTH);
         l0_err = CHASSIS.ref.rod_L0[i] - leg->rod.L0;//腿长位置误差
         F_pd = fp32_constrain(LEG_KP * l0_err - LEG_KD * leg->rod.dL0, -150.0f, 150.0f);
-        force = stand_support_blend * (support_force + roll_force + F_pd - leg->rod.F_spring);
+        force = stand_support_blend * (support_force + roll_force + F_pd - leg->rod.F_spring);//缓启动
         if (rising)
         {
             support_swing = fp32_constrain(10.0f * (leg->rod.Theta - CHASSIS.ref.rod_Angle[i])
@@ -633,10 +633,9 @@ static void LegTorqueController(float support_force, float joint_torque_limit)
         }
         else
         {
-            support_swing = fp32_constrain(3.0f * leg->rod.Theta - leg->rod.dPhi0, -1.2f, 1.2f);
+            support_swing = fp32_constrain(3.0f * leg->rod.Theta - leg->rod.dPhi0, -1.2f, 1.2f);//支撑模式
         }
-        swing = (1.0f - stand_balance_blend) * stand_support_blend * support_swing
-                - stand_balance_blend * CHASSIS.lqr.wbr_u[2U + i];
+        swing = (1.0f - stand_balance_blend) * stand_support_blend * support_swing- stand_balance_blend * CHASSIS.lqr.wbr_u[2U + i];//缓启动
 
         swing_gain = fmaxf(fabsf(leg->J[1][0]), fabsf(leg->J[1][1]));
         if (swing_gain > 1.0e-6f)
@@ -996,19 +995,14 @@ static void ConsoleNormal(void)
     }
 
     stand_support_blend = fminf(1.0f, stand_support_blend + 0.001f);//软启动斜坡
-    stand_balance_blend = (next_mode == STAND_BALANCE || next_mode == STAND_FIXED_BALANCE) ?
-                          fminf(1.0f, stand_balance_blend + 0.002f) : 0.0f;
+    stand_balance_blend = (next_mode == STAND_BALANCE || next_mode == STAND_FIXED_BALANCE) ? fminf(1.0f, stand_balance_blend + 0.01f) : 0.0f;//0.002
     chassis_stand_mode = next_mode;
     LegTorqueController(support_force, joint_torque_limit);
 
-    CHASSIS.joint_motor[3].set.tor = fp32_constrain(CHASSIS.cmd.leg[0].joint.T[0] * J1_DIRECTION,
-                                                  -joint_torque_limit, joint_torque_limit);
-    CHASSIS.joint_motor[2].set.tor = fp32_constrain(CHASSIS.cmd.leg[0].joint.T[1] * J0_DIRECTION,
-                                                  -joint_torque_limit, joint_torque_limit);
-    CHASSIS.joint_motor[0].set.tor = fp32_constrain(CHASSIS.cmd.leg[1].joint.T[0] * J3_DIRECTION,
-                                                  -joint_torque_limit, joint_torque_limit);
-    CHASSIS.joint_motor[1].set.tor = fp32_constrain(CHASSIS.cmd.leg[1].joint.T[1] * J2_DIRECTION,
-                                                  -joint_torque_limit, joint_torque_limit);
+    CHASSIS.joint_motor[3].set.tor = fp32_constrain(CHASSIS.cmd.leg[0].joint.T[0] * J1_DIRECTION,-joint_torque_limit, joint_torque_limit);
+    CHASSIS.joint_motor[2].set.tor = fp32_constrain(CHASSIS.cmd.leg[0].joint.T[1] * J0_DIRECTION,-joint_torque_limit, joint_torque_limit);
+    CHASSIS.joint_motor[0].set.tor = fp32_constrain(CHASSIS.cmd.leg[1].joint.T[0] * J3_DIRECTION,-joint_torque_limit, joint_torque_limit);
+    CHASSIS.joint_motor[1].set.tor = fp32_constrain(CHASSIS.cmd.leg[1].joint.T[1] * J2_DIRECTION,-joint_torque_limit, joint_torque_limit);
     CHASSIS.wheel_motor[1].set.tor = stand_balance_blend * CHASSIS.lqr.wbr_u[0] * W1_DIRECTION;
     CHASSIS.wheel_motor[0].set.tor = stand_balance_blend * CHASSIS.lqr.wbr_u[1] * W0_DIRECTION;
 }
@@ -1186,6 +1180,16 @@ void SendWheelMotorCmd(void)
     CanCmdDjiMotor(&hfdcan2, 0x200, right_current, left_current, 0, 0);
     UpdateStandBalanceTrace(current_count_limit);
 }
+
+void ChassisReference(void)
+{
+	 if(switch_is_down(CHASSIS.rc->sw2)&&switch_is_down(CHASSIS.rc->sw1))
+		{
+       // CHASSIS.mode = CHASSIS_SAFE; //双下无力安全模式
+    } 
+}
+////////////
+
 void ChassisSendCmd(void) 
  {
 	      SendJointMotorCmd();

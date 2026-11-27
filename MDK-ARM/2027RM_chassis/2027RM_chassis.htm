@@ -3,7 +3,7 @@
 <title>Static Call Graph - [2027RM_chassis\2027RM_chassis.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image 2027RM_chassis\2027RM_chassis.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Thu Nov 26 16:50:31 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Fri Nov 27 18:02:20 2026
 <BR><P>
 <H3>Maximum Stack Usage =        344 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -2035,15 +2035,16 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[189]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Start_Receive_DMA
 </UL>
-<BR>[Called By]<UL><LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_ErrorCallback
+<BR>[Called By]<UL><LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+<LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_ErrorCallback
 <LI><a href="#[18a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UARTEx_RxEventCallback
 </UL>
 
 <P><STRONG><a name="[18a]"></a>HAL_UARTEx_RxEventCallback</STRONG> (Thumb, 40 bytes, Stack size 8 bytes, bsp_rc.o(i.HAL_UARTEx_RxEventCallback))
 <BR><BR>[Stack]<UL><LI>Max Depth = 108<LI>Call Chain = HAL_UARTEx_RxEventCallback &rArr; HAL_UARTEx_ReceiveToIdle_DMA &rArr; UART_Start_Receive_DMA &rArr; HAL_DMA_Start_IT &rArr; DMA_SetConfig
 </UL>
-<BR>[Calls]<UL><LI><a href="#[18b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sbus_frame_parse
-<LI><a href="#[188]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UARTEx_ReceiveToIdle_DMA
+<BR>[Calls]<UL><LI><a href="#[188]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UARTEx_ReceiveToIdle_DMA
+<LI><a href="#[18b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sbus_frame_parse
 </UL>
 <BR>[Called By]<UL><LI><a href="#[191]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_IRQHandler
 <LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_DMARxHalfCplt
@@ -2128,7 +2129,7 @@ Global Symbols
 <LI><a href="#[1dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_UART5_Init
 </UL>
 
-<P><STRONG><a name="[198]"></a>HAL_UART_MspInit</STRONG> (Thumb, 892 bytes, Stack size 248 bytes, usart.o(i.HAL_UART_MspInit))
+<P><STRONG><a name="[198]"></a>HAL_UART_MspInit</STRONG> (Thumb, 890 bytes, Stack size 248 bytes, usart.o(i.HAL_UART_MspInit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 328<LI>Call Chain = HAL_UART_MspInit &rArr; HAL_RCCEx_PeriphCLKConfig &rArr; RCCEx_PLL3_Config
 </UL>
 <BR>[Calls]<UL><LI><a href="#[144]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_NVIC_SetPriority
@@ -2447,7 +2448,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[1dc]"></a>MX_UART5_Init</STRONG> (Thumb, 98 bytes, Stack size 8 bytes, usart.o(i.MX_UART5_Init))
+<P><STRONG><a name="[1dc]"></a>MX_UART5_Init</STRONG> (Thumb, 100 bytes, Stack size 8 bytes, usart.o(i.MX_UART5_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 344<LI>Call Chain = MX_UART5_Init &rArr; HAL_UART_Init &rArr; HAL_UART_MspInit &rArr; HAL_RCCEx_PeriphCLKConfig &rArr; RCCEx_PLL3_Config
 </UL>
 <BR>[Calls]<UL><LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Error_Handler
@@ -3285,7 +3286,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[1f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;theta_transform
 </UL>
 
-<P><STRONG><a name="[b6]"></a>main</STRONG> (Thumb, 146 bytes, Stack size 0 bytes, main.o(i.main))
+<P><STRONG><a name="[b6]"></a>main</STRONG> (Thumb, 306 bytes, Stack size 0 bytes, main.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 344 + Unknown Stack Size
 <LI>Call Chain = main &rArr; MX_USART1_UART_Init &rArr; HAL_UART_Init &rArr; HAL_UART_MspInit &rArr; HAL_RCCEx_PeriphCLKConfig &rArr; RCCEx_PLL3_Config
 </UL>
@@ -3306,6 +3307,7 @@ Global Symbols
 <LI><a href="#[1d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_FDCAN2_Init
 <LI><a href="#[1cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_FDCAN1_Init
 <LI><a href="#[1ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_DMA_Init
+<LI><a href="#[188]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UARTEx_ReceiveToIdle_DMA
 <LI><a href="#[149]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Init
 <LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
 <LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
@@ -4426,7 +4428,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ConsoleNormal
 </UL>
 
-<P><STRONG><a name="[e9]"></a>CalcLQR</STRONG> (Thumb, 350 bytes, Stack size 72 bytes, chassis_task.o(i.CalcLQR))
+<P><STRONG><a name="[e9]"></a>CalcLQR</STRONG> (Thumb, 334 bytes, Stack size 72 bytes, chassis_task.o(i.CalcLQR))
 <BR><BR>[Stack]<UL><LI>Max Depth = 156<LI>Call Chain = CalcLQR &rArr; WbrLqrStep &rArr; FindInterval
 </UL>
 <BR>[Calls]<UL><LI><a href="#[eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fp32_constrain

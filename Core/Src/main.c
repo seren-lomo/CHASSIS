@@ -33,6 +33,7 @@
 #include "CAN_cmd_damiao.h"
 #include "motor.h"
 #include "bsp_can.h"
+#include "bsp_rc.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,7 +54,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+extern uint8_t rx_buff[BUFF_SIZE];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -118,6 +119,8 @@ int main(void)
   MX_UART7_Init();
   MX_USART1_UART_Init();
   MX_USART10_UART_Init();
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart5, rx_buff, BUFF_SIZE);
+	__HAL_DMA_DISABLE_IT(huart5.hdmarx, DMA_IT_HT); // ¹Ø±Õ°ë´«ÊäÖÐ¶Ï
   /* USER CODE BEGIN 2 */
   /* Board 5 V supply control, matching the original chassis project. */
   HAL_GPIO_WritePin(Power_5v_GPIO_Port, Power_5v_Pin, GPIO_PIN_SET);
