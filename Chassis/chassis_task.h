@@ -10,6 +10,8 @@
 #include "bsp_task_timing.h"
 #include "motor.h"
 
+
+#define CHASSIS_RC_DEADLINE    20 // 摇杆死区
 ///////////////////////PID
 //气弹簧阻尼 
 //初期调试先给小一点的刚度和限幅，防止发散打车

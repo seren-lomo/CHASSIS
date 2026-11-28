@@ -127,25 +127,66 @@ const RC_ctrl_t *get_remote_control_point(void)
 {
     return &rc_ctrl;
 }
+volatile uint32_t rc_rx_frames;
+volatile uint32_t rc_rx_short_frames;
+volatile uint32_t rc_rx_last_ms;
+volatile uint32_t rc_rx_uart_error;
+volatile HAL_StatusTypeDef rc_rx_restart_status;
 
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef * huart, uint16_t Size)
+static void RestartRcRx(UART_HandleTypeDef *huart)
 {
+    rc_rx_restart_status = HAL_UARTEx_ReceiveToIdle_DMA(
+        huart, rx_buff, BUFF_SIZE);
+}
 
-	if(huart->Instance == UART5)
-	{
-		if (Size == BUFF_SIZE)
-		{
-			HAL_UARTEx_ReceiveToIdle_DMA(&huart5, rx_buff, BUFF_SIZE); // 接收完毕后重启
-			sbus_frame_parse(&rc_ctrl, rx_buff);
-//			memset(rx_buff, 0, BUFF_SIZE);
-		}
-	}
-}
-void HAL_UART_ErrorCallback(UART_HandleTypeDef * huart)
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
-	if(huart->Instance == UART5)
-	{
-		HAL_UARTEx_ReceiveToIdle_DMA(&huart5,(uint8_t *)rx_buff, 18); // 接收发生错误后重启
-		memset(rx_buff, 0, 18);							   // 清除接收缓存		
-	}
+    if (huart->Instance != UART5 ||
+        HAL_UARTEx_GetRxEventType(huart) == HAL_UART_RXEVENT_HT)
+    {
+        return;
+    }
+
+    if (Size == BUFF_SIZE)
+    {
+        sbus_frame_parse(&rc_ctrl, rx_buff);
+        rc_rx_last_ms = HAL_GetTick();
+        ++rc_rx_frames;
+    }
+    else
+    {
+        ++rc_rx_short_frames;
+    }
+
+    RestartRcRx(huart);
 }
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == UART5)
+    {
+        rc_rx_uart_error = HAL_UART_GetError(huart);
+        RestartRcRx(huart);
+    }
+}
+//void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef * huart, uint16_t Size)
+//{
+
+//	if(huart->Instance == UART5)
+//	{
+//		if (Size == BUFF_SIZE)
+//		{
+//			HAL_UARTEx_ReceiveToIdle_DMA(&huart5, rx_buff, BUFF_SIZE); // 接收完毕后重启
+//			sbus_frame_parse(&rc_ctrl, rx_buff);
+////			memset(rx_buff, 0, BUFF_SIZE);
+//		}
+//	}
+//}
+//void HAL_UART_ErrorCallback(UART_HandleTypeDef * huart)
+//{
+//	if(huart->Instance == UART5)
+//	{
+//		HAL_UARTEx_ReceiveToIdle_DMA(&huart5,(uint8_t *)rx_buff, 18); // 接收发生错误后重启
+//		memset(rx_buff, 0, 18);							   // 清除接收缓存		
+//	}
+//}

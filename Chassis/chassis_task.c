@@ -18,6 +18,7 @@
 #include <float.h>
 #include <math.h>
 
+
  int BODY_PITCH_DIRECTION =1;
  float dt_s = 0.001f;
 static Imu_t chassis_imu;
@@ -25,7 +26,14 @@ static LowPassFilter_t s_dot_filter;
 
 Chassis_s CHASSIS = {.imu = &chassis_imu};
 volatile ChassisDebug_s g_chassis_debug; 
-
+#define rc_deadband_limit(input, output, dealine)          \
+{                                                      \
+        if ((input) > (dealine) || (input) < -(dealine)) { \
+            (output) = (input);                            \
+        } else {                                           \
+            (output) = 0;                                  \
+        }                                                  \
+}
 
 
 enum
@@ -233,6 +241,7 @@ void  ChassisSendCmd(void);
 void BodyMotionObserve(void);
 static void ConsoleNormal(void);
 static void StopStand(uint8_t fault);
+void ChassisReference(void);
 
 void chassis_task(void *argument)
 {
@@ -997,6 +1006,15 @@ static void ConsoleNormal(void)
     stand_support_blend = fminf(1.0f, stand_support_blend + 0.001f);//软启动斜坡
     stand_balance_blend = (next_mode == STAND_BALANCE || next_mode == STAND_FIXED_BALANCE) ? fminf(1.0f, stand_balance_blend + 0.01f) : 0.0f;//0.002
     chassis_stand_mode = next_mode;
+		/* 仅在支撑软启动完成后，允许支撑态与平衡态通过遥控器 ch4 调节腿长 */
+    if (stand_support_blend >= 1.0f &&
+        (next_mode == STAND_SUPPORT ||
+         next_mode == STAND_BALANCE ||
+         next_mode == STAND_FIXED_BALANCE))
+    {
+        ChassisReference();
+    }
+		////////////////
     LegTorqueController(support_force, joint_torque_limit);
 
     CHASSIS.joint_motor[3].set.tor = fp32_constrain(CHASSIS.cmd.leg[0].joint.T[0] * J1_DIRECTION,-joint_torque_limit, joint_torque_limit);
@@ -1181,12 +1199,49 @@ void SendWheelMotorCmd(void)
     UpdateStandBalanceTrace(current_count_limit);
 }
 
+
+//////////////遥控器
+/* 遥控器 ch4 变腿长参数 */
+static const int16_t stand_rc_ch4_deadband = 40;       /* 拨轮死区（满量程 ±660） */
+static const float   stand_rc_leg_dir      = -1.0f;    /* 方向：-1  */
+static const float   stand_rc_leg_rate_mps = 0.18f;    /* 满行程变腿长速度 0.18 m/s */
+static const float   stand_rc_leg_min_m    = 0.135f;   /* 遥控下限（留出距 MIN_LEG_LENGTH 的安全余量） */
+static const float   stand_rc_leg_max_m    = 0.340f;   /* 遥控上限（避开 0.32m 附近气弹簧限位区） */
+
 void ChassisReference(void)
 {
-	 if(switch_is_down(CHASSIS.rc->sw2)&&switch_is_down(CHASSIS.rc->sw1))
-		{
-       // CHASSIS.mode = CHASSIS_SAFE; //双下无力安全模式
-    } 
+    const uint32_t last_frame_ms = rc_rx_last_ms;
+    const volatile RC_ctrl_t *rc = CHASSIS.rc;
+    const int16_t ch4 = rc->ch4;
+    const int16_t deadband = CHASSIS_RC_DEADLINE;
+
+    if (rc_rx_frames == 0U ||
+        (uint32_t)(HAL_GetTick() - last_frame_ms) >= 100U ||
+        ch4 < -660 || ch4 > 660 ||
+        (ch4 >= -deadband && ch4 <= deadband))
+    {
+        return;
+    }
+
+    const float effective = (ch4 > 0) ? ch4 - deadband : ch4 + deadband;
+    const float norm = effective / (660.0f - deadband);
+    const float step_s = fp32_constrain(dt_s, 0.0f, 0.005f);
+    float delta = stand_rc_leg_dir * norm * stand_rc_leg_rate_mps * step_s;
+
+    const float left = CHASSIS.ref.rod_L0[0];
+    const float right = CHASSIS.ref.rod_L0[1];
+
+    if (delta > 0.0f)
+    {
+        delta = fminf(delta, fmaxf(0.0f, stand_rc_leg_max_m - fmaxf(left, right)));
+    }
+    else
+    {
+        delta = fmaxf(delta, fminf(0.0f, stand_rc_leg_min_m - fminf(left, right)));
+    }
+
+    CHASSIS.ref.rod_L0[0] += delta;
+    CHASSIS.ref.rod_L0[1] += delta;
 }
 ////////////
 

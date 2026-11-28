@@ -99,7 +99,8 @@ typedef __packed struct
 extern RC_ctrl_t rc_ctrl;
 
 extern const RC_ctrl_t *get_remote_control_point(void);
-
+extern volatile uint32_t rc_rx_frames;
+extern volatile uint32_t rc_rx_last_ms;
 
 
 #endif /*__UART_BSP_H__ */
