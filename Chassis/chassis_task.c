@@ -24,8 +24,13 @@
 static Imu_t chassis_imu;
 static LowPassFilter_t s_dot_filter;
 
+/* 左右腿 dTheta 低通滤波 */
+static LowPassFilter_t leg_dtheta_filter[2];
+static LowPassFilter_t body_phi_dot_filter;
+
 Chassis_s CHASSIS = {.imu = &chassis_imu};
 volatile ChassisDebug_s g_chassis_debug; 
+static bool stand_rc_drive_armed;
 #define rc_deadband_limit(input, output, dealine)          \
 {                                                      \
         if ((input) > (dealine) || (input) < -(dealine)) { \
@@ -334,6 +339,9 @@ void ChassisInit(void)
     g_chassis_debug.initialized = 1U;
 	/* 0.5 作为初步调试值，之后根据噪声和响应调整 */
     LowPassFilterInit(&s_dot_filter, 0.5f);
+	  LowPassFilterInit(&leg_dtheta_filter[0], 0.75f);
+    LowPassFilterInit(&leg_dtheta_filter[1], 0.75f);
+    LowPassFilterInit(&body_phi_dot_filter, 0.55f);
 }
 
 
@@ -399,9 +407,10 @@ void UpdateLegStatus(void)
         CHASSIS.fdb.leg[i].rod.dL0 = dL0_dPhi0[0];
         CHASSIS.fdb.leg[i].rod.dPhi0 = dL0_dPhi0[1];
 				
-        CHASSIS.fdb.leg[i].rod.dTheta = -CHASSIS.fdb.leg[i].rod.dPhi0 + CHASSIS.fdb.body.phi_dot;
-			//	CHASSIS.fdb.leg[i].rod.dTheta = LowPassFilterCalc(&CHASSIS.lpf.dtheta, CHASSIS.fdb.leg[i].rod.dTheta);
-        
+//        CHASSIS.fdb.leg[i].rod.dTheta = -CHASSIS.fdb.leg[i].rod.dPhi0 + CHASSIS.fdb.body.phi_dot;
+//				CHASSIS.fdb.leg[i].rod.dTheta = LowPassFilterCalc(&leg_dtheta_filter[i], CHASSIS.fdb.leg[i].rod.dTheta);
+        float dPhi0_filt = LowPassFilterCalc(&leg_dtheta_filter[i], CHASSIS.fdb.leg[i].rod.dPhi0);
+        CHASSIS.fdb.leg[i].rod.dTheta = -dPhi0_filt + CHASSIS.fdb.body.phi_dot;
 
        
 //        // 更新加速度信息  一阶微分--->>二阶微分  
@@ -486,7 +495,7 @@ void UpdateBodyStatus(void)
 
     CHASSIS.fdb.body.phi     = BODY_PITCH_DIRECTION * (CHASSIS.fdb.body.roll);
     CHASSIS.fdb.body.phi_dot = BODY_PITCH_DIRECTION * CHASSIS.fdb.body.roll_dot;
-
+    CHASSIS.fdb.body.phi_dot = LowPassFilterCalc(&body_phi_dot_filter,BODY_PITCH_DIRECTION * CHASSIS.fdb.body.roll_dot);
  
         CHASSIS.fdb.state.theta_body     = CHASSIS.fdb.body.phi;
         CHASSIS.fdb.state.theta_body_dot = CHASSIS.fdb.body.phi_dot;
@@ -964,6 +973,7 @@ static void ConsoleNormal(void)
     if (fixed_balance && entering_balance)
     {
         HoldStandLegLengths();
+			  stand_rc_drive_armed = false;
         chassis_stand_fault = STAND_OK;
     }
     else if (entering_balance)
@@ -1208,26 +1218,127 @@ static const float   stand_rc_leg_rate_mps = 0.18f;    /* 满行程变腿长速度 0.18 
 static const float   stand_rc_leg_min_m    = 0.135f;   /* 遥控下限（留出距 MIN_LEG_LENGTH 的安全余量） */
 static const float   stand_rc_leg_max_m    = 0.340f;   /* 遥控上限（避开 0.32m 附近气弹簧限位区） */
 
+static float StandRcAxis(int16_t raw)
+{
+    const int16_t deadband = CHASSIS_RC_DEADLINE;
+    if (raw >= -deadband && raw <= deadband)
+    {
+        return 0.0f;
+    }
+
+    const float effective = (raw > 0) ? raw - deadband : raw + deadband;
+    return effective / (660.0f - deadband);
+}
+
+
+
+//void ChassisReference(void)
+//{
+//	//////////////////变腿长
+//    const uint32_t last_frame_ms = rc_rx_last_ms;
+//    const volatile RC_ctrl_t *rc = CHASSIS.rc;
+//    const int16_t ch4 = rc->ch4;
+//    const int16_t deadband = CHASSIS_RC_DEADLINE;
+
+//    if (rc_rx_frames == 0U || (uint32_t)(HAL_GetTick() - last_frame_ms) >= 100U || ch4 < -660 || ch4 > 660 ||(ch4 >= -deadband && ch4 <= deadband))
+//    {
+//        return;
+//    }
+
+//    const float effective = (ch4 > 0) ? ch4 - deadband : ch4 + deadband;
+//    const float norm = effective / (660.0f - deadband);
+//    const float step_s = fp32_constrain(dt_s, 0.0f, 0.005f);
+//    float delta = stand_rc_leg_dir * norm * stand_rc_leg_rate_mps * step_s;
+
+//    const float left = CHASSIS.ref.rod_L0[0];
+//    const float right = CHASSIS.ref.rod_L0[1];
+
+//    if (delta > 0.0f)
+//    {
+//        delta = fminf(delta, fmaxf(0.0f, stand_rc_leg_max_m - fmaxf(left, right)));
+//    }
+//    else
+//    {
+//        delta = fmaxf(delta, fminf(0.0f, stand_rc_leg_min_m - fminf(left, right)));
+//    }
+
+//    CHASSIS.ref.rod_L0[0] += delta;
+//    CHASSIS.ref.rod_L0[1] += delta;
+//		///////////////////////
+//		//给速度
+//		
+//		
+//		
+//}
 void ChassisReference(void)
 {
-    const uint32_t last_frame_ms = rc_rx_last_ms;
+    const float forward_dir = 1.0f;
+    const float yaw_dir = -1.0f;
     const volatile RC_ctrl_t *rc = CHASSIS.rc;
-    const int16_t ch4 = rc->ch4;
-    const int16_t deadband = CHASSIS_RC_DEADLINE;
 
-    if (rc_rx_frames == 0U ||
-        (uint32_t)(HAL_GetTick() - last_frame_ms) >= 100U ||
-        ch4 < -660 || ch4 > 660 ||
-        (ch4 >= -deadband && ch4 <= deadband))
+    const uint32_t primask = __get_PRIMASK();
+    __disable_irq();
+    const uint32_t frames = rc_rx_frames;
+    const uint32_t last_ms = rc_rx_last_ms;
+    const int16_t ch0 = rc->ch0;
+    const int16_t ch1 = rc->ch1;
+    const int16_t ch4 = rc->ch4;
+    __set_PRIMASK(primask);
+
+    const bool fresh = frames != 0U &&(uint32_t)(HAL_GetTick() - last_ms) < 100U;
+    const float dt = fp32_constrain(dt_s, 0.0f, 0.005f);
+
+    /* CH1 前后走，CH0 转向。 */
+    if (chassis_stand_mode == STAND_FIXED_BALANCE &&stand_balance_blend >= 1.0f)
+    {
+        const bool drive_valid = fresh &&ch1 >= -660 && ch1 <= 660 && ch0 >= -660 && ch0 <= 660;
+        const float forward = drive_valid ? StandRcAxis(ch1) : 0.0f;
+        const float turn = drive_valid ? StandRcAxis(ch0) : 0.0f;
+
+        if (!drive_valid)
+        {
+            stand_rc_drive_armed = false;
+        }
+        else if (forward == 0.0f && turn == 0.0f)
+        {
+            stand_rc_drive_armed = true;
+        }
+
+        const float v_target = stand_rc_drive_armed ?forward_dir * forward * 0.50f : 0.0f;
+        const float yaw_rate_target = stand_rc_drive_armed ?yaw_dir * turn * 0.90f : 0.0f;
+        const float dv = 0.80f * dt;
+        const float dw = 2.00f * dt;
+        const State_t *state = &CHASSIS.fdb.state;
+        float *ref = CHASSIS.lqr.wbr_xref;
+
+        ref[1] += fp32_constrain(v_target - ref[1], -dv, dv);
+        ref[3] += fp32_constrain(yaw_rate_target - ref[3], -dw, dw);
+
+        if (ref[1] != 0.0f && isfinite(state->s))
+        {
+            const float lead = ref[0] - state->s + ref[1] * dt;
+            ref[0] = state->s + fp32_constrain(lead, -0.28f, 0.28f);
+        }
+        if (ref[3] != 0.0f && isfinite(state->yaw))
+        {
+            const float lead = theta_format(ref[2] - state->yaw) + ref[3] * dt;
+            ref[2] = theta_format(state->yaw + fp32_constrain(lead, -0.20f, 0.20f));
+        }
+    }
+
+    /* CH4 调腿长。 */
+    if (!fresh || ch4 < -660 || ch4 > 660)
     {
         return;
     }
 
-    const float effective = (ch4 > 0) ? ch4 - deadband : ch4 + deadband;
-    const float norm = effective / (660.0f - deadband);
-    const float step_s = fp32_constrain(dt_s, 0.0f, 0.005f);
-    float delta = stand_rc_leg_dir * norm * stand_rc_leg_rate_mps * step_s;
+    const float leg_axis = StandRcAxis(ch4);
+    if (leg_axis == 0.0f)
+    {
+        return;
+    }
 
+    float delta = stand_rc_leg_dir * leg_axis * stand_rc_leg_rate_mps * dt;
     const float left = CHASSIS.ref.rod_L0[0];
     const float right = CHASSIS.ref.rod_L0[1];
 

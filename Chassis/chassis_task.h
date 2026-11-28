@@ -50,10 +50,14 @@
  * Phi1_ref=2*atan2(0.250,0.210); validate over the full leg travel.
  * theta_transform computes direction*(pos+offset).
  */
-#define J0_ANGLE_OFFSET (            -0.0201330185f) 	//ID3，左大腿 Phi4
-#define J1_ANGLE_OFFSET (-1.7442730f - 0.0416097641f)  //	ID4，左虚拟杆 Phi1
-#define J2_ANGLE_OFFSET (            -0.0692214966f) //	ID2，右大腿 Phi4
-#define J3_ANGLE_OFFSET ( 1.7442730f - 0.0719060898f) //	ID1，右虚拟杆 Phi1	
+//#define J0_ANGLE_OFFSET (            -0.0201330185f) 	//ID3，左大腿 Phi4
+//#define J1_ANGLE_OFFSET (-1.7442730f - 0.0416097641f)  //	ID4，左虚拟杆 Phi1
+//#define J2_ANGLE_OFFSET (            -0.0692214966f) //	ID2，右大腿 Phi4
+//#define J3_ANGLE_OFFSET ( 1.7442730f - 0.0719060898f) //	ID1，右虚拟杆 Phi1	
+#define J0_ANGLE_OFFSET ( 0.114364f)                   // ID3，左前 Phi4
+#define J1_ANGLE_OFFSET (-1.7442730f + 0.116282f)      // ID4，左后 Phi1（即 -1.627991f）
+#define J2_ANGLE_OFFSET (-0.130471f)                   // ID2，右前 Phi4
+#define J3_ANGLE_OFFSET ( 1.7442730f - 0.109762f)      // ID1，右后 Phi1（即 +1.634511f）
 
 #define MIN_LEG_LENGTH       ( 0.135f)         //最短腿长  
 #define MAX_LEG_LENGTH       (0.357f)          //最大腿长  
